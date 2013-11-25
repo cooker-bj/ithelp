@@ -32,7 +32,7 @@ group :doc do
   gem 'sdoc', require: false
 end
 
-
+gem 'ruby-ldap'
 group :development,:test do
   gem 'cucumber-rails',:require=>false
   gem 'rspec-rails'

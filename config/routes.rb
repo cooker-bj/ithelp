@@ -1,4 +1,9 @@
 Ithelp::Application.routes.draw do
+
+  get "sign_in" =>"sessions#new"
+
+  resource :sessions, :only=>[:new,:create,:destroy]
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

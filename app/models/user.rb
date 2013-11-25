@@ -19,11 +19,9 @@ class User<Struct.new(*(Ldap_attributes.keys))
   def self.authenticate(login,password)
     begin
       conn=build_conn
-
       conn.bind(login,password)
       ActiveRecord::Base.logger.info "conn bound"
       user= login_search(conn,login)
-
     rescue => e
       ActiveRecord::Base.logger.info "authenticated error:authenticate #{e}"
       user= nil
