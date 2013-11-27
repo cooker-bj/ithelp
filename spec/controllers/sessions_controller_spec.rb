@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe SessionsController do
   before(:each) do
-    @user=User.new(nil,nil,nil,nil,nil)
+    @user=User.new()
     @user.stub(:uid).and_return("1101")
     @user.stub(:salt).and_return("sadffs")
 

@@ -56,5 +56,22 @@ describe User do
     end
   end
 
+  describe "find_by_name" do
+    it "return a user" do
+      name='david'
+      user=User.find_by_name(name)
+      user.name.should==name
+    end
+  end
+
+  describe "find_users_by_department" do
+    it "return an array of users" do
+      department="it department"
+      users=User.find_users_by_department(department)
+      users.count().should==1
+      users.first.name="david"
+    end
+  end
+
 
 end

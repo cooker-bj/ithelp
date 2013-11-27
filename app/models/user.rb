@@ -34,13 +34,37 @@ class User<Struct.new(*(Ldap_attributes.keys))
 
 
   def self.authenticate_with_salt(id,salt)
-    user=find_by_id(id)
+    user=find(id)
     (user&&user.salt==salt)?user: nil
 
   end
 
 
 
+   def self.find(id)
+    return bound_search(Ldap_attributes[:id],id).first
+  end
+
+
+
+  def self.method_missing(method,*args,&block)
+    if (m=/^find_by_(\w+)$/.match(method.to_s)) && (Ldap_attributes.has_key?(m[1].to_sym))
+         self.send :define_singleton_method,method do |*args|
+           bound_search(Ldap_attributes[m[1].to_sym],args[0]).first
+      end
+      send(method,args)
+    elsif   (m=/^find_users_by_(\w+)$/.match(method.to_s)) && (Ldap_attributes.has_key?(m[1].to_sym) )
+      self.send :define_singleton_method,method do |*args|
+        bound_search(Ldap_attributes[m[1].to_sym],args[0])
+      end
+      send(method,args)
+    else
+      super
+    end
+
+
+  end
+  private
   def self.build_conn
     conn=LDAP::Conn.new(@@host,@@port)
     conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
@@ -48,43 +72,16 @@ class User<Struct.new(*(Ldap_attributes.keys))
     conn
   end
 
-
-
-  def self.build_bind_conn
-    conn=build_conn
-    conn.bind(@@username,@@password)
-    conn
-
-  end
-
-  def self.find_by_id(id)
-    return bound_search("uSNCreated",id).first
+  def self.singular?(str)
+    str.pluralize!=str and str.singularize==str
   end
 
 
-
-  def self.find_by_name(name)
-    return bound_search("displayName",name).first
-  end
-
-
-
-  def self.find_by_mail(email)
-    return bound_search("mail",email).first
-  end
-
-
-
-  def self.find_users_by_department(dep)
-    return bound_search("department",dep)
-  end
-
-  private
 
   def self.search(conn,query)
     result=conn.search2(@@dn,LDAP::LDAP_SCOPE_SUBTREE,query,Ldap_attributes.values)
     result.inject([]) do |li,item|
-      li<< User.new(*(Ldap_attributes.values.collect{|value| get_value(item[value])}))
+      li<< User.new(*(Ldap_attributes.collect{|key,value| singular?(key.to_s) ? get_value(item[value]).first : get_value(item[value])}))
     end
   end
 
@@ -114,6 +111,6 @@ class User<Struct.new(*(Ldap_attributes.keys))
 
   def self.get_value(v)
     m=v.collect{|v|v.force_encoding("UTF-8")}
-    m.length>1 ? m : m.first
+
   end
 end
