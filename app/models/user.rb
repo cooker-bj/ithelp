@@ -7,11 +7,11 @@ require 'ldap'
 class User<Struct.new(*(Ldap_attributes.keys))
   #follwoing class variables are used to make connection with domain server
 
-  @@host=Rails.configuration.ldap_config['host']
-  @@port=Rails.configuration.ldap_config['port']
-  @@dn=Rails.configuration.ldap_config['dn']
-  @@username=Rails.configuration.ldap_config['username']
-  @@password=Rails.configuration.ldap_config['password']
+  @host=Rails.configuration.ldap_config['host']
+  @port=Rails.configuration.ldap_config['port']
+  @dn=Rails.configuration.ldap_config['dn']
+  @username=Rails.configuration.ldap_config['username']
+  @password=Rails.configuration.ldap_config['password']
 
 
 
@@ -66,7 +66,7 @@ class User<Struct.new(*(Ldap_attributes.keys))
   end
   private
   def self.build_conn
-    conn=LDAP::Conn.new(@@host,@@port)
+    conn=LDAP::Conn.new(@host,@port)
     conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
     conn.set_option(LDAP::LDAP_OPT_REFERRALS, 0)
     conn
@@ -79,7 +79,7 @@ class User<Struct.new(*(Ldap_attributes.keys))
 
 
   def self.search(conn,query)
-    result=conn.search2(@@dn,LDAP::LDAP_SCOPE_SUBTREE,query,Ldap_attributes.values)
+    result=conn.search2(@dn,LDAP::LDAP_SCOPE_SUBTREE,query,Ldap_attributes.values)
     result.inject([]) do |li,item|
       li<< User.new(*(Ldap_attributes.collect{|key,value| singular?(key.to_s) ? get_value(item[value]).first : get_value(item[value])}))
     end
@@ -97,7 +97,7 @@ class User<Struct.new(*(Ldap_attributes.keys))
     bound_conn=build_conn
     result=nil
     begin
-      bound_conn.bind(@@username,@@password)  do |myconn|
+      bound_conn.bind(@username,@password)  do |myconn|
         result=search(myconn,"#{mykey}=#{myvalue}")
       end
     rescue =>e
