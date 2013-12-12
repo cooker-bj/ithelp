@@ -1,3 +1,5 @@
+before
+
 Given(/^I am on sign in page$/) do
   visit('/sign_in')
 end

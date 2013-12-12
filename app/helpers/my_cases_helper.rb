@@ -1,0 +1,2 @@
+module MyCasesHelper
+end

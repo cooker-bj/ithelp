@@ -1,5 +1,6 @@
 Ithelp::Application.routes.draw do
 
+  get "my_cases/index"
   get "sign_in" =>"sessions#new"
 
   resource :sessions, :only=>[:new,:create,:destroy]
